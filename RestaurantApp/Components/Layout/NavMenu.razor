@@ -1,0 +1,60 @@
+@implements IDisposable
+
+@inject NavigationManager NavigationManager
+
+<div class="navmenu">
+
+    <FluentNavMenu class="menu-text" Id="main-menu" Width="220" Collapsible="true" Title="Navigation menu" @bind-Expanded="expanded">
+
+        <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">
+            Home
+        </FluentNavLink>
+
+        <FluentNavGroup Title="Arquivo" Tooltip="Opções de Cadastro" Icon="@(new Icons.Regular.Size24.Archive())">
+
+            <FluentNavGroup Title="Clientes" Tooltip="Cadastro de Clientes" Icon="@(new Icons.Regular.Size24.Navigation())">
+
+            </FluentNavGroup>
+
+            <FluentNavGroup Title="Produtos" Tooltip="Cadastro de Produtos" Icon="@(new Icons.Regular.Size24.Navigation())">
+                <FluentNavLink Href="grupo" Icon="@(new Icons.Regular.Size20.WindowMultiple())" IconColor="Color.Accent">
+                    Grupos
+                </FluentNavLink>
+
+                <FluentNavLink Href="produto" Icon="@(new Icons.Regular.Size20.WindowMultipleSwap())" IconColor="Color.Accent">
+                    Produtos
+                </FluentNavLink>
+            </FluentNavGroup>
+        </FluentNavGroup>
+
+    </FluentNavMenu>
+</div>
+
+@code {
+    private bool expanded = true;
+
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}
+
+<style>
+    .menu-text {
+        font-size: 12px; 
+    }
+</style>

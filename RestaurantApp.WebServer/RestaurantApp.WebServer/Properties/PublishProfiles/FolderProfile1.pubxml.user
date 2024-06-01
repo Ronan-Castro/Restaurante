@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>C:\LundiSistemasHibrido\LundiApp.WebServer\LundiApp.WebServer\bin\Release\net8.0\publish\</_PublishTargetUrl>
+    <History>True|2024-03-08T17:25:43.7467720Z;True|2024-03-08T09:57:37.6666863-03:00;True|2024-03-08T08:53:23.7868913-03:00;True|2024-03-08T00:49:00.7939903-03:00;True|2024-03-08T00:38:30.9007815-03:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>

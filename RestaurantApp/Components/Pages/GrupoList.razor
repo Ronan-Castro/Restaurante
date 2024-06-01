@@ -1,0 +1,164 @@
+@page "/grupo"
+@inject IGrupoRepository _grupoService
+
+@if (Grupos == null)
+{
+    <FluentProgressRing Style="width:30px;height:30px" />
+}
+else
+{
+    <FluentGenericHeader Title="Cadastro de Grupos" ButtonText="Cadastrar Grupo" Href="grupocadastro" />
+
+    <FluentBodyContent Class="Grid">
+        <FluentDataGrid Id="GridGrupo" Items=GrupoFiltrado TGridItem=Grupo Pagination="@pagination">
+
+            <PropertyColumn Title="Id" Property="@(c => c!.Id)" Sortable="true" Align=Align.End />
+
+            <PropertyColumn Title="Nome" Property="@(c => c!.Nome)" Sortable="true" Align=Align.Start>
+                <ColumnOptions>
+                    <FluentSearch Type="search" Autofocus=true @bind-Value="textoFiltro" Placeholder="Buscar grupo..." />
+                </ColumnOptions>
+            </PropertyColumn>
+
+            <TemplateColumn Align="@Align.End">
+                <ButtonDeleteGeneric ConfirmationMessage="Confirma exclusão do Grupo?" OnConfirmation="(() => ConfirmarExclusao(context.Id))" />
+                <ButtonEditGeneric OnEditClick="() => Editar(context)" />
+            </TemplateColumn>
+
+        </FluentDataGrid>
+    </FluentBodyContent>
+
+    <FluentStack HorizontalAlignment="HorizontalAlignment.Center">
+        @if (pagination.TotalItemCount.HasValue)
+        {
+            for (var pageIndex = 0; pageIndex <= pagination.LastPageIndex; pageIndex++)
+            {
+
+                var capturedIndex = pageIndex;
+
+                <FluentButton Align=Align.End @onclick="@(() => GoToPageAsync(capturedIndex))"
+                              Appearance="@PageButtonAppearance(capturedIndex)"
+                              aria-current="@AriaCurrentValue(capturedIndex)"
+                              aria-label="@AriaLabel(capturedIndex + 1)">
+                    @(capturedIndex + 1)
+                </FluentButton>
+            }
+        }
+    </FluentStack>
+}
+
+@code {
+    private static int itensPorPagina = 7;
+    private string? textoFiltro;
+    private List<Grupo>? Grupos { get; set; } = new();
+    private PaginationState pagination = new PaginationState { ItemsPerPage = itensPorPagina };
+
+    /* ************************************************************************** */
+    /*  Ao inicializar                                                            */
+    /* ************************************************************************** */
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarGrupos();
+        pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
+
+
+        await base.OnInitializedAsync();
+    }
+
+    /* ************************************************************************** */
+    /*  Carrega dados do Banco                                                    */
+    /* ************************************************************************** */
+    private async Task CarregarGrupos()
+    {
+        var grupos = await _grupoService.ObterGrupos();
+        Grupos?.Clear();
+
+        if (grupos is null) return;
+
+        foreach (var grupo in grupos)
+            Grupos.Add(grupo);
+    }
+
+    /* ************************************************************************** */
+    /*  Pesquisa para alimentar o Grid                                            */
+    /* ************************************************************************** */
+    IQueryable<Grupo> GrupoFiltrado
+    {
+        get
+        {
+            // var result = Grupos.AsQueryable().Where(c => c.Id >= minId && c.Id <= maxId);
+            var result = Grupos.AsQueryable();
+
+            if (!string.IsNullOrEmpty(textoFiltro))
+            {
+                result = result.Where(c => c.Nome!.Contains(textoFiltro, StringComparison.CurrentCultureIgnoreCase));
+            }
+
+            pagination.TotalItemCountChanged += (sender, eventArgs) => StateHasChanged();
+            return result;
+        }
+    }
+
+    /* ************************************************************************** */
+    /*  Alteração                                                                 */
+    /* ************************************************************************** */
+    private async void Editar(Grupo model)
+    {
+        var grupo = await _grupoService.ObterGrupo(model.Id);
+        if (grupo is not null)
+            _navigation.NavigateTo($"grupocadastro/{model.Id}");
+        else
+        {
+            
+            DialogService.ShowSuccess("Grupo não foi encontrado!\n Talvez tenha sido excluído.\n A listagem será atualizada.");
+            await CarregarGrupos();
+            StateHasChanged();
+            
+        }  
+    }
+
+    /* ************************************************************************** */
+    /*  Exclusão                                                                  */
+    /* ************************************************************************** */
+    private async Task ConfirmarExclusao(int id)
+    {
+        var grupo = await _grupoService.ObterGrupo(id);
+
+        if (grupo is null)
+        {
+            await CarregarGrupos();           
+            DialogService.ShowSuccess("Grupo não foi encontrado! Talvez tenha sido excluído. A listagem será atualizada.");            
+            StateHasChanged();
+            return;
+        }
+
+        var result = await _grupoService.DeletarGrupo(grupo.Id);
+
+        if (result is not null)
+        {
+            await CarregarGrupos();
+            ToastService.ShowSuccess("Grupo excluído com sucesso!");
+            StateHasChanged();            
+        }
+        else
+        {
+            ToastService.ShowError($"Não foi possível excluir o Grupo com id={id}");
+        }
+    }
+
+    /* ************************************************************************** */
+    /*  Controle de páginação                                                     */
+    /* ************************************************************************** */
+    private async Task GoToPageAsync(int pageIndex)
+    {
+        await pagination.SetCurrentPageIndexAsync(pageIndex);
+    }
+
+    private Appearance PageButtonAppearance(int pageIndex)
+        => pagination.CurrentPageIndex == pageIndex ? Appearance.Accent : Appearance.Neutral;
+
+    private string? AriaCurrentValue(int pageIndex)
+        => pagination.CurrentPageIndex == pageIndex ? "page" : null;
+
+    private string AriaLabel(int pageIndex) => $"Ir para pag. {pageIndex}";
+}   

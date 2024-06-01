@@ -1,0 +1,28 @@
+﻿@inherits Microsoft.AspNetCore.Components.ComponentBase
+
+<FluentButton Appearance="Appearance.Outline" OnClick="ShowConfirmationDialog">
+    <FluentIcon Icon="Icons.Regular.Size24.Delete" Color="Color.Error" />
+</FluentButton>
+
+@code {
+    [Parameter] public EventCallback<int> OnConfirmation { get; set; }
+    [Parameter] public string ConfirmationMessage { get; set; }
+
+    private async Task ShowConfirmationDialog()
+    {
+        var dialog = await DialogService
+                          .ShowConfirmationAsync(ConfirmationMessage,
+                          "Sim", "Não", "Deletar Grupo");
+
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            await OnConfirmation.InvokeAsync(); // Chama a lógica de exclusão fornecida pela página
+        }
+        else
+        {
+            ToastService.ShowInfo($"Operação cancelada");
+        }
+    }
+}

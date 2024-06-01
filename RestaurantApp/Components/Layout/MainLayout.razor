@@ -1,0 +1,62 @@
+﻿@inherits LayoutComponentBase
+
+
+<FluentLayout>
+
+    <FluentHeader Style="background-color:#2980b9">
+        <FluentStack HorizontalAlignment="HorizontalAlignment.Start">
+            Sistema de Gestão Comercial
+        </FluentStack>
+
+        <FluentStack HorizontalAlignment="HorizontalAlignment.End">
+            <FluentCounterBadge Count="@numeroNotificacoes" Appearance="Appearance.Neutral" ShowZero=true>
+                <FluentButton Appearance="Appearance.Accent" @onclick="NavegarNotificacoes">
+                    <FluentIcon Value="@(new Icons.Regular.Size24.Alert())" Color="@Color.Fill" />
+                </FluentButton>
+            </FluentCounterBadge>
+
+            <FluentPersona Name="Joana"
+                           @* Status="PresenceStatus.Available" *@
+                           StatusSize="PresenceBadgeSize.Small"
+                           Image="_content/RestaurantApp/image/avatar.png"
+                           ImageSize="35px">
+            </FluentPersona>
+        </FluentStack>
+
+    </FluentHeader>
+
+    <FluentStack Class="main" Orientation="Orientation.Horizontal" Width="100%">
+
+        <NavMenu />
+
+        <FluentBodyContent>
+            <div class="content">
+                @Body
+            </div>
+        </FluentBodyContent>
+    </FluentStack>
+
+    <FluentFooter>
+
+    </FluentFooter>
+
+    <FluentDialogProvider />
+    <FluentToastProvider />
+
+</FluentLayout>
+
+@code {
+    private int numeroNotificacoes = 3;
+
+
+    private void NavegarNotificacoes()
+    {
+
+
+        if (numeroNotificacoes > 0)
+        {
+            _navigation.NavigateTo("atualizacao-sistema");
+            numeroNotificacoes = 0;
+        }
+    }
+}

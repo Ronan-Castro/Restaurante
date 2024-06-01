@@ -1,0 +1,20 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using RestaurantApp.Components.Layout
+
+@using Microsoft.FluentUI.AspNetCore.Components
+@using RestaurantApp.Domain.Models
+@using RestaurantApp.Components.Generic
+@using RestaurantApp.Components.cs
+@using RestaurantApp.Domain.Interfaces
+@using RestaurantApp.CrossCuting.DependenciesApp
+
+@inject NavigationManager _navigation
+@inject IJSRuntime js
+@inject IDialogService DialogService
+@inject IToastService ToastService

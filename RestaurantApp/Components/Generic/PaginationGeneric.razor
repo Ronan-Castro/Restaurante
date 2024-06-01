@@ -1,0 +1,29 @@
+﻿@typeparam TItem
+
+<FluentStack HorizontalAlignment="HorizontalAlignment.Center">
+    @if (Pagination.TotalItemCount.HasValue)
+    {
+        for (var pageIndex = 0; pageIndex <= Pagination.LastPageIndex; pageIndex++)
+        {
+            var capturedIndex = pageIndex;
+            <FluentButton Align=Align.End
+                          @onclick="@(async () => await GoToPageAsync(capturedIndex))"
+                          Appearance="@(PageButtonAppearance(capturedIndex))"
+                          aria-current="@AriaCurrentValue(capturedIndex)"
+                          aria-label="@AriaLabel(capturedIndex)">
+                @(capturedIndex + 1)
+            </FluentButton>
+        }
+    }
+</FluentStack>
+
+@code {
+    [Parameter] public PaginationState Pagination { get; set; }
+    [Parameter] public Func<int, Task> GoToPageAsync { get; set; } 
+    [Parameter] public Func<int, Appearance> PageButtonAppearance { get; set; }
+    [Parameter] public Func<int, string?> AriaCurrentValue { get; set; }
+    [Parameter] public Func<int, string> AriaLabel { get; set; }
+
+  
+
+}

@@ -1,0 +1,80 @@
+﻿@page "/grupocadastro"
+@page "/grupocadastro/{Id:int}"
+@inject IGrupoRepository _grupoService
+
+<PageTitle>
+    @pageTitle
+</PageTitle>
+
+<FluentGrid Justify="@JustifyContent.Center">
+    <FluentGridItem>
+        <FluentCard>
+            <FluentLabel Alignment="HorizontalAlignment.Center">
+                @pageTitle
+            </FluentLabel>
+
+            <EditForm Model="GrupoModel" FormName="Grupo" OnValidSubmit="@HandleValidSubmitAsync" OnInvalidSubmit="@HandleInvalidSubmit" Enhance>
+                <DataAnnotationsValidator />
+                <FluentValidationSummary />
+
+                <FluentTextField Appearance="FluentInputAppearance.Filled" Style="width:100%"
+                                 Autofocus="true"
+                                 Label="Nome"
+                                 @bind-Value="GrupoModel!.Nome" />
+                <ValidationMessage For="@(() => GrupoModel.Nome)" />
+
+                <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit">
+                    @pageTitle
+                </FluentButton>
+
+                <FluentAnchor Href="/grupo"> Cancelar</FluentAnchor>
+            </EditForm>
+
+        </FluentCard>
+    </FluentGridItem>
+</FluentGrid>
+
+@code {
+    [Parameter]
+    public int Id { get; set; } = 0;
+    public string thisModel = "grupo";
+    private string pageTitle => Id > 0 ? $"Editar {thisModel}" : $"Novo {thisModel}";
+    public Grupo? GrupoModel { get; set; } = new Grupo { Id = 0 };
+    private Grupo? ReturnGrupo = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id > 0)
+            GrupoModel = await _grupoService.ObterGrupo(Id);
+    }
+
+    private async Task HandleSalvar()
+    {
+        if (GrupoModel.Id > 0)
+        {
+             ReturnGrupo = await _grupoService.AtualizarGrupo(GrupoModel);
+             DialogService.ShowSuccess($"{thisModel} {GrupoModel.Nome} {Constantes.MsgAlteracaoOk}");
+        }
+        else
+        {
+            ReturnGrupo = await _grupoService.AdicionarGrupo(GrupoModel);
+            ToastService.ShowInfo($"{thisModel} {GrupoModel.Nome}  {Constantes.MsgInclusaoOk}");
+        }
+
+       // ToastService.ShowInfo($"{Constantes.MsgRetornaLista} de {thisModel}");
+        //await Task.Delay(1000);
+        _navigation.NavigateTo($"{thisModel}");
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        await HandleSalvar();
+    }
+
+    private async Task HandleInvalidSubmit()
+    {
+        ToastService.ShowInfo(Constantes.MsgErro);
+        await Task.Delay(3000);
+    }
+
+}
